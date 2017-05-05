@@ -20,6 +20,7 @@ from django import VERSION
 
 from django.db import models
 from django.utils.text import capfirst
+from django.utils.encoding import python_2_unicode_compatible
 from django.core import exceptions
 
 from ..forms.fields import MultiSelectFormField, MinChoicesValidator, MaxChoicesValidator
@@ -130,9 +131,11 @@ class MultiSelectField(models.CharField):
     def to_python(self, value):
         choices = dict(self.flatchoices)
 
+        @python_2_unicode_compatible
         class MSFList(list):
             def __str__(msgl):
-                return ', '.join([choices.get(int(i)) if i.isdigit() else choices.get(i) for i in msgl])
+                l = [choices.get(int(i)) if i.isdigit() else choices.get(i) for i in msgl]
+                return u', '.join([string_type(s) for s in l])
 
         if value:
             return value if isinstance(value, list) else MSFList(value.split(','))
