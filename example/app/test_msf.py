@@ -38,6 +38,12 @@ class MultiSelectTestCase(TestCase):
         self.assertEqual(Book.objects.filter(tags__contains='sex').count(), 1)
         self.assertEqual(Book.objects.filter(tags__contains='boring').count(), 0)
 
+        book = Book.objects.first()
+        self.assertQuerySetEqual(
+            Book.objects.filter(pk=book.pk),
+            Book.objects.filter(pk=book.pk, published_in=book.published_in),
+        )
+
     def test_values_list(self):
         tag_list_list = Book.objects.all().values_list('tags', flat=True)
         categories_list_list = Book.objects.all().values_list('categories', flat=True)
